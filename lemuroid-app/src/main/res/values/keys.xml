@@ -30,6 +30,20 @@
     <string name="pref_key_hd_mode" translatable="false">hd_mode</string>
     <string name="pref_key_viewport_alignment" translatable="false">viewport_alignment</string>
 
+    <string name="pref_key_controller_skin" translatable="false">controller_skin</string>
+
+    <string-array translatable="false" name="pref_key_controller_skin_values">
+        <item>glass</item>
+        <item>delta_dark</item>
+        <item>delta_light</item>
+    </string-array>
+
+    <string-array translatable="false" name="pref_key_controller_skin_display_names">
+        <item>@string/controller_skin_names_glass</item>
+        <item>@string/controller_skin_names_delta_dark</item>
+        <item>@string/controller_skin_names_delta_light</item>
+    </string-array>
+
     <string-array translatable="false" name="pref_key_haptic_feedback_mode_values">
         <item>none</item>
         <item>press</item>

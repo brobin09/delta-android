@@ -123,6 +123,18 @@ private fun InputSettings(navController: NavController) {
             },
             items = stringListResource(R.array.pref_key_haptic_feedback_mode_display_names),
         )
+        LemuroidSettingsList(
+            state =
+                indexPreferenceState(
+                    R.string.pref_key_controller_skin,
+                    "glass",
+                    stringListResource(R.array.pref_key_controller_skin_values),
+                ),
+            title = {
+                Text(text = stringResource(id = R.string.settings_title_controller_skin))
+            },
+            items = stringListResource(R.array.pref_key_controller_skin_display_names),
+        )
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.settings_title_gamepad_settings)) },
             subtitle = {

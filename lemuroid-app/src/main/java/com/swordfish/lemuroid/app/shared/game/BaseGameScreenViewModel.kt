@@ -34,6 +34,7 @@ import com.swordfish.lemuroid.lib.saves.SavesManager
 import com.swordfish.lemuroid.lib.saves.StatesManager
 import com.swordfish.lemuroid.lib.saves.StatesPreviewManager
 import com.swordfish.libretrodroid.GLRetroView
+import com.swordfish.touchinput.radial.PadSkin
 import com.swordfish.touchinput.radial.sensors.TiltConfiguration
 import com.swordfish.touchinput.radial.settings.TouchControllerSettingsManager
 import gg.padkit.inputevents.InputEvent
@@ -171,6 +172,10 @@ class BaseGameScreenViewModel(
         insets: WindowInsets,
     ): Flow<TouchControllerSettingsManager.Settings?> {
         return touchControls.getTouchControlsSettings(density, insets)
+    }
+
+    fun getPadSkin(): Flow<PadSkin> {
+        return touchControls.getPadSkin()
     }
 
     fun getTouchHapticFeedbackMode(): Flow<HapticFeedbackMode> {

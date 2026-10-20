@@ -8,6 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.swordfish.lemuroid.app.mobile.feature.settings.SettingsManager
 import com.swordfish.lemuroid.app.shared.settings.HapticFeedbackMode
+import com.swordfish.touchinput.radial.PadSkin
 import com.swordfish.lemuroid.common.coroutines.launchOnState
 import com.swordfish.lemuroid.common.coroutines.safeCollect
 import com.swordfish.lemuroid.lib.controller.ControllerConfig
@@ -49,6 +50,7 @@ class GameViewModelTouchControls(
     private val menuPressed = MutableStateFlow(false)
     private val showEditControls = MutableStateFlow(false)
     private val hapticFeedbackMode = MutableStateFlow(HapticFeedbackMode.NONE)
+    private val padSkin = MutableStateFlow(PadSkin.GLASS)
 
     private var loadingMenuJob: Job? = null
 
@@ -61,6 +63,7 @@ class GameViewModelTouchControls(
         owner.launchOnState(Lifecycle.State.CREATED) {
             withContext(Dispatchers.IO) {
                 hapticFeedbackMode.value = HapticFeedbackMode.parse(settingsManager.hapticFeedbackMode())
+                padSkin.value = PadSkin.parse(settingsManager.controllerSkin())
             }
         }
     }
@@ -76,6 +79,10 @@ class GameViewModelTouchControls(
             .flatMapLatest { (touchControlId, orientation) ->
                 touchControllerSettingsManager.observeSettings(touchControlId, orientation, density, insets)
             }
+    }
+
+    fun getPadSkin(): Flow<PadSkin> {
+        return padSkin
     }
 
     fun getTouchHapticFeedbackMode(): Flow<HapticFeedbackMode> {

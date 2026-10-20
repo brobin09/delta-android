@@ -56,6 +56,7 @@ import com.swordfish.lemuroid.lib.controller.ControllerConfig
 import com.swordfish.touchinput.controller.R
 import com.swordfish.touchinput.radial.LemuroidPadTheme
 import com.swordfish.touchinput.radial.LocalLemuroidPadTheme
+import com.swordfish.touchinput.radial.PadSkin
 import com.swordfish.touchinput.radial.sensors.TiltConfiguration
 import com.swordfish.touchinput.radial.settings.TouchControllerSettingsManager
 import com.swordfish.touchinput.radial.ui.GlassSurface
@@ -101,6 +102,8 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
             viewModel
                 .getTouchHapticFeedbackMode()
                 .collectAsState(HapticFeedbackMode.NONE)
+
+        val padSkin = viewModel.getPadSkin().collectAsState(PadSkin.GLASS)
 
         val padHapticFeedback =
             when (hapticFeedbackMode.value) {
@@ -170,7 +173,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         touchControlsVisibleState.value
 
                 if (isVisible) {
-                    CompositionLocalProvider(LocalLemuroidPadTheme provides LemuroidPadTheme()) {
+                    CompositionLocalProvider(LocalLemuroidPadTheme provides remember(padSkin.value) { LemuroidPadTheme(padSkin.value) }) {
                         if (!isLandscape) {
                             PadContainer(
                                 modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_BOTTOM_CONTAINER),
