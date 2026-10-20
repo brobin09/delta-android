@@ -218,6 +218,9 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                             },
                         )
                     }
+                    composable(GameMenuRoute.CHEATS) {
+                        GameMenuCheatsScreen(gameMenuRequest)
+                    }
                     composable(GameMenuRoute.OPTIONS) {
                         GameMenuCoreOptionsScreen(
                             viewModel(

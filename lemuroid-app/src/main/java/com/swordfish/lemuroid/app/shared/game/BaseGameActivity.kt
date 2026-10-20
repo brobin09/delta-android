@@ -18,8 +18,10 @@ import com.swordfish.lemuroid.app.mobile.feature.settings.SettingsManager
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.AppTheme
 import com.swordfish.lemuroid.app.shared.GameMenuContract
 import com.swordfish.lemuroid.app.shared.ImmersiveActivity
+import com.swordfish.lemuroid.app.shared.cheats.CheatsStore
 import com.swordfish.lemuroid.app.shared.coreoptions.CoreOption
 import com.swordfish.lemuroid.app.shared.coreoptions.LemuroidCoreOption
+import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelRetroGameView
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelSideEffects
 import com.swordfish.lemuroid.app.shared.input.InputDeviceManager
 import com.swordfish.lemuroid.app.shared.rumble.RumbleManager
@@ -154,6 +156,11 @@ abstract class BaseGameActivity : ImmersiveActivity() {
 
     private fun initialiseFlows() {
         launchOnState(Lifecycle.State.CREATED) {
+            baseGameScreenViewModel.getGameState().collect {
+                if (it is GameViewModelRetroGameView.GameState.Ready) applyCheats()
+            }
+        }
+        launchOnState(Lifecycle.State.CREATED) {
             initializeViewModelsEffectsFlow()
         }
     }
@@ -233,6 +240,22 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                     }
                 coreOptionResult.getOrNull()
             } ?: listOf()
+    }
+
+    private var appliedCheatCount = 0
+
+    /** Pushes the game's saved cheats into the running core. */
+    private fun applyCheats() {
+        val retroView = baseGameScreenViewModel.retroGameView.retroGameView ?: return
+        val cheats = CheatsStore(applicationContext).load(game.id)
+        // Switch off slots left over from cheats that were deleted since the last apply.
+        for (index in cheats.size until appliedCheatCount) {
+            runCatching { retroView.setCheat(index, false, "") }
+        }
+        cheats.forEachIndexed { index, cheat ->
+            runCatching { retroView.setCheat(index, cheat.enabled, cheat.code) }
+        }
+        appliedCheatCount = cheats.size
     }
 
     private suspend fun initializeViewModelsEffectsFlow() {
@@ -365,6 +388,7 @@ abstract class BaseGameActivity : ImmersiveActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == DIALOG_REQUEST) {
             Timber.i("Game menu dialog response: ${data?.extras.dump()}")
+            applyCheats()
             if (data?.getBooleanExtra(GameMenuContract.RESULT_RESET, false) == true) {
                 GlobalScope.launch {
                     baseGameScreenViewModel.reset()
