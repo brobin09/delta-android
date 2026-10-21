@@ -1,5 +1,8 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
+import androidx.lifecycle.lifecycleScope
+import com.swordfish.lemuroid.app.shared.library.RomImporter
+import kotlinx.coroutines.launch
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
@@ -178,6 +181,9 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                         currentRoute = currentRoute,
                         navController = navController,
                         onHelpPressed = onHelpPressed,
+                        onRomsPicked = { uris ->
+                            lifecycleScope.launch { RomImporter.importAndReport(applicationContext, retrogradeDb, uris) }
+                        },
                         mainUIState = mainUIState,
                         onUpdateQueryString = { mainViewModel.changeQueryString(it) },
                     )

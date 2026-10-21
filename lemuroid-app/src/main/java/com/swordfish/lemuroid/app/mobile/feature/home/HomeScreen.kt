@@ -62,6 +62,11 @@ fun HomeScreen(
             }
         }
 
+    val importLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+            if (uris.isNotEmpty()) viewModel.importRoms(applicationContext, uris)
+        }
+
     val state = viewModel.getViewStates().collectAsState(HomeViewModel.UIState())
     HomeScreen(
         modifier,
@@ -77,7 +82,7 @@ fun HomeScreen(
             permissionsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         },
         { permissionsLauncher.launch(Manifest.permission.RECORD_AUDIO) },
-        { viewModel.changeLocalStorageFolder(context) },
+        { importLauncher.launch(arrayOf("*/*")) },
     ) // TODO COMPOSE We need to understand what's going to happen here.
 }
 

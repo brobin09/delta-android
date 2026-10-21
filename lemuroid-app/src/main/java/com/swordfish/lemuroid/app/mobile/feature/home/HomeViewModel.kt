@@ -1,5 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.home
 
+import android.net.Uri
+import com.swordfish.lemuroid.app.shared.library.RomImporter
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -33,7 +35,7 @@ import kotlinx.coroutines.launch
 @OptIn(FlowPreview::class)
 class HomeViewModel(
     appContext: Context,
-    retrogradeDb: RetrogradeDatabase,
+    private val retrogradeDb: RetrogradeDatabase,
     private val coresSelection: CoresSelection,
 ) : ViewModel() {
     companion object {
@@ -72,6 +74,13 @@ class HomeViewModel(
 
     fun changeLocalStorageFolder(context: Context) {
         StorageFrameworkPickerLauncher.pickFolder(context)
+    }
+
+    fun importRoms(
+        context: Context,
+        uris: List<Uri>,
+    ) {
+        viewModelScope.launch { RomImporter.importAndReport(context, retrogradeDb, uris) }
     }
 
     fun updatePermissions(context: Context) {

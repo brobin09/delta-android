@@ -1,7 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
 import android.content.Context
-import android.widget.Toast
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -38,7 +38,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -50,15 +49,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.swordfish.lemuroid.R
-import com.swordfish.lemuroid.app.shared.library.RomImporter
 import com.swordfish.lemuroid.app.shared.savesync.SaveSyncWork
-import kotlinx.coroutines.launch
 
 @Composable
 fun MainTopBar(
     currentRoute: MainRoute,
     navController: NavHostController,
     onHelpPressed: () -> Unit,
+    onRomsPicked: (List<Uri>) -> Unit,
     onUpdateQueryString: (String) -> Unit,
     mainUIState: MainViewModel.UiState,
 ) {
@@ -68,6 +66,7 @@ fun MainTopBar(
             navController = navController,
             mainUIState = mainUIState,
             onHelpPressed = onHelpPressed,
+            onRomsPicked = onRomsPicked,
             onUpdateQueryString = onUpdateQueryString,
         )
 
@@ -84,6 +83,7 @@ fun LemuroidTopAppBar(
     navController: NavController,
     mainUIState: MainViewModel.UiState,
     onHelpPressed: () -> Unit,
+    onRomsPicked: (List<Uri>) -> Unit,
     onUpdateQueryString: (String) -> Unit,
 ) {
     val context = LocalContext.current
@@ -126,6 +126,7 @@ fun LemuroidTopAppBar(
                 context = context,
                 saveSyncEnabled = mainUIState.saveSyncEnabled,
                 onHelpPressed = onHelpPressed,
+                onRomsPicked = onRomsPicked,
                 operationsInProgress = mainUIState.operationInProgress,
             )
         },
@@ -140,22 +141,11 @@ fun LemuroidTopBarActions(
     saveSyncEnabled: Boolean,
     operationsInProgress: Boolean,
     onHelpPressed: () -> Unit,
+    onRomsPicked: (List<Uri>) -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
     val importLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-            if (uris.isNotEmpty()) {
-                scope.launch {
-                    val count = RomImporter.importRoms(context, uris)
-                    val message =
-                        if (count > 0) {
-                            context.getString(R.string.import_roms_done, count)
-                        } else {
-                            context.getString(R.string.import_roms_failed)
-                        }
-                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                }
-            }
+            if (uris.isNotEmpty()) onRomsPicked(uris)
         }
 
     Row {
