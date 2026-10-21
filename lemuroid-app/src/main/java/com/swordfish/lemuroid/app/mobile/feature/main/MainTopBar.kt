@@ -1,6 +1,9 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
 import android.content.Context
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -15,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.CloudSync
 import androidx.compose.material.icons.outlined.Info
@@ -34,6 +38,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -45,7 +50,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.shared.library.RomImporter
 import com.swordfish.lemuroid.app.shared.savesync.SaveSyncWork
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainTopBar(
@@ -134,7 +141,32 @@ fun LemuroidTopBarActions(
     operationsInProgress: Boolean,
     onHelpPressed: () -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+    val importLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+            if (uris.isNotEmpty()) {
+                scope.launch {
+                    val count = RomImporter.importRoms(context, uris)
+                    val message =
+                        if (count > 0) {
+                            context.getString(R.string.import_roms_done, count)
+                        } else {
+                            context.getString(R.string.import_roms_failed)
+                        }
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
     Row {
+        if (route.showBottomNavigation) {
+            IconButton(onClick = { importLauncher.launch(arrayOf("*/*")) }) {
+                Icon(
+                    Icons.Default.Add,
+                    stringResource(R.string.import_roms),
+                )
+            }
+        }
         IconButton(
             onClick = { onHelpPressed() },
         ) {
